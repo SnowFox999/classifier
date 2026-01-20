@@ -1,0 +1,47 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ===== Virtual environment =====
+env/
+venv/
+.venv/
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== ML / Data =====
+data/
+datasets/
+*.csv
+*.tsv
+*.parquet
+*.h5
+
+# ===== Models =====
+models/
+*.pkl
+*.joblib
+*.pt
+*.h5
+
+# ===== Logs & temp =====
+logs/
+*.log
+tmp/
+*.tmp
+
+# ===== OS / IDE =====
+.DS_Store
+.idea/
+.vscode/
+
+# ===== Secrets =====
+.env
+*.key
+*.pem
+
+# ===== System =====
+*.swp

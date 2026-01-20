@@ -1,0 +1,118 @@
+в конфиге осн настройки поменять можно
+
+в eval нужно менять номер логов на текущий
+
+классификация по leiser id или как их там, а не по изображениям. Это айди пациента, от которого могло поступить по 20 фоток одной и той же родинки, поэтому важно делить на пациентов
+значит и генерацию нужно как то по пациентам включать, а не по картинкам
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+добавла split по leiser id и графики стали норм, но по матрице половины классов не было, version_15
+добавила stratified split и графики стали жопой, зато в матрицу все классы вошли. Это version_16
+
+-------------------------------------------------------------------------------------
+
+данные прям норм стали, version_25
+поменяла - заморозка то ли двух последних слоёв, то ли 2 первых, в сл версии исправлено
+изменила оптимайзер на
+optimizer = torch.optim.Adam([
+    {"params": self.model.features[-2:].parameters(), "lr": 1e-4},
+    {"params": self.model.classifier.parameters(), "lr": 3e-4},
+])
+
+
+и добавила label_smoothing
+
+----------------------------------------------------------------------------------------
+
+добавила val_macro_recall и val_balanced_acc, потому что при label_smoothing=0.1 бесполезно смотреть норм метрику val loss, ну и плюс что я по пациентам делаю, а не по картинкам, поэтому нужна вот эта баланс метрика
+на трейн тоже смотреть бесполезно, не коррелирует. Можно удалить, но пока пусть будет
+
+добавлена заморозка всех слоёв, кроме 2 последних
+
+version_27
+
+Per-class report (lesion-level):
+                              precision    recall  f1-score   support (это по пациентам)
+
+        Basal cell carcinoma      0.735     0.437     0.548       261
+              Dermatofibroma      0.060     0.818     0.111        11
+         Melanoma metastasis      0.356     0.457     0.400        46
+               Melanoma, NOS      0.587     0.388     0.468       139
+                       Nevus      0.826     0.598     0.694       341
+                        Scar      0.146     0.368     0.209        19
+        Seborrheic keratosis      0.309     0.218     0.256        78
+               Solar lentigo      0.061     0.312     0.102        16
+  Solar or actinic keratosis      0.306     0.302     0.304        63
+Squamous cell carcinoma, NOS      0.218     0.375     0.276        32
+
+                    accuracy                          0.459      1006
+                   macro avg      0.360     0.427     0.337      1006
+                weighted avg      0.623     0.459     0.515      1006
+
+Lesion-level balanced accuracy: 0.4273671916516559
+
+Per-class report (image-level):
+                              precision    recall  f1-score   support (это по картинкам)
+
+        Basal cell carcinoma      0.708     0.363     0.480       714
+              Dermatofibroma      0.046     0.625     0.086        32
+         Melanoma metastasis      0.246     0.398     0.304       123
+               Melanoma, NOS      0.738     0.454     0.562       813
+                       Nevus      0.773     0.543     0.638      1112
+                        Scar      0.110     0.491     0.180        53
+        Seborrheic keratosis      0.257     0.183     0.214       235
+               Solar lentigo      0.058     0.328     0.098        58
+  Solar or actinic keratosis      0.342     0.348     0.345       233
+Squamous cell carcinoma, NOS      0.200     0.441     0.275       102
+
+                    accuracy                          0.436      3475
+                   macro avg      0.348     0.417     0.318      3475
+                weighted avg      0.624     0.436     0.496      3475
+
+в общем то с прошлого вообще ничего не поменялось, хз
+Но это лучший результат и почти как в статье - 43%. Всё, победа
+
+---------------------------------------------------------------------------------------
+я ошиблась и не поставила стритифайд сплит на вал и тест
+теперь такие данные version_31
+Даже улучшились
+
+Per-class report (lesion-level):
+                              precision    recall  f1-score   support
+
+        Basal cell carcinoma      0.711     0.471     0.567       261
+              Dermatofibroma      0.066     0.818     0.122        11
+         Melanoma metastasis      0.387     0.522     0.444        46
+               Melanoma, NOS      0.746     0.338     0.465       139
+                       Nevus      0.827     0.575     0.678       341
+                        Scar      0.099     0.421     0.160        19
+        Seborrheic keratosis      0.375     0.308     0.338        78
+               Solar lentigo      0.056     0.312     0.095        16
+  Solar or actinic keratosis      0.281     0.286     0.283        63
+Squamous cell carcinoma, NOS      0.278     0.312     0.294        32
+
+                    accuracy                          0.461      1006
+                   macro avg      0.383     0.436     0.345      1006
+                weighted avg      0.645     0.461     0.521      1006
+
+Lesion-level balanced accuracy: 0.43635540964721387
+
+Per-class report (image-level):
+                              precision    recall  f1-score   support
+
+        Basal cell carcinoma      0.697     0.394     0.503       714
+              Dermatofibroma      0.047     0.625     0.088        32
+         Melanoma metastasis      0.284     0.496     0.361       123
+               Melanoma, NOS      0.832     0.385     0.526       813
+                       Nevus      0.801     0.518     0.629      1112
+                        Scar      0.087     0.472     0.146        53
+        Seborrheic keratosis      0.271     0.285     0.278       235
+               Solar lentigo      0.042     0.259     0.073        58
+  Solar or actinic keratosis      0.311     0.365     0.336       233
+Squamous cell carcinoma, NOS      0.202     0.343     0.255       102
+
+                    accuracy                          0.425      3475
+                   macro avg      0.358     0.414     0.319      3475
+                weighted avg      0.652     0.425     0.494      3475
+
