@@ -14,6 +14,7 @@ class ImageDataModule(pl.LightningDataModule):
         val_tfms,
         batch_size,
         num_workers,
+        train_sampler=None,
     ):
         super().__init__()
         self.train_df = train_df
@@ -23,6 +24,7 @@ class ImageDataModule(pl.LightningDataModule):
         self.val_tfms = val_tfms
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.train_sampler = train_sampler
 
     def setup(self, stage=None):
         self.train_ds = ImageDataset(self.train_df, self.train_tfms)
@@ -33,7 +35,8 @@ class ImageDataModule(pl.LightningDataModule):
         return DataLoader(
             self.train_ds,
             batch_size=self.batch_size,
-            shuffle=True,
+            sampler=self.train_sampler,  # ← ВАЖНО
+            shuffle=False,
             num_workers=self.num_workers,
             persistent_workers=True,
         )

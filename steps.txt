@@ -116,3 +116,46 @@ Squamous cell carcinoma, NOS      0.202     0.343     0.255       102
                    macro avg      0.358     0.414     0.319      3475
                 weighted avg      0.652     0.425     0.494      3475
 
+-------------------------------------------------------------------------------
+Per-class report (lesion-level):
+                              precision    recall  f1-score   support
+
+        Basal cell carcinoma      0.692     0.766     0.727       261
+              Dermatofibroma      0.462     0.545     0.500        11
+         Melanoma metastasis      0.447     0.457     0.452        46
+               Melanoma, NOS      0.550     0.518     0.533       139
+                       Nevus      0.791     0.754     0.772       341
+                        Scar      0.167     0.105     0.129        19
+        Seborrheic keratosis      0.431     0.282     0.341        78
+               Solar lentigo      0.043     0.062     0.051        16
+  Solar or actinic keratosis      0.318     0.444     0.371        63
+Squamous cell carcinoma, NOS      0.333     0.281     0.305        32
+
+                    accuracy                          0.614      1006
+                   macro avg      0.423     0.422     0.418      1006
+                weighted avg      0.617     0.614     0.613      1006
+
+Lesion-level balanced accuracy: 0.42154199945400095
+
+Per-class report (image-level):
+                              precision    recall  f1-score   support
+
+        Basal cell carcinoma      0.645     0.681     0.663       714
+              Dermatofibroma      0.459     0.531     0.493        32
+         Melanoma metastasis      0.340     0.390     0.364       123
+               Melanoma, NOS      0.679     0.558     0.613       813
+                       Nevus      0.763     0.711     0.736      1112
+                        Scar      0.177     0.208     0.191        53
+        Seborrheic keratosis      0.318     0.294     0.305       235
+               Solar lentigo      0.047     0.086     0.061        58
+  Solar or actinic keratosis      0.342     0.498     0.406       233
+Squamous cell carcinoma, NOS      0.363     0.402     0.381       102
+
+                    accuracy                          0.586      3475
+                   macro avg      0.413     0.436     0.421      3475
+                weighted avg      0.610     0.586     0.595      3475
+
+version_37
+lr = 2e-4
+unfreeze = 15
+-------------------------------------------------------------------------------
