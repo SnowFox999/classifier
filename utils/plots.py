@@ -13,8 +13,7 @@ def plot_metrics(log_dir, save_path=None):
     metrics = df.groupby("epoch").agg({
         "train_loss_epoch": "last",
         "val_loss": "last",
-        "train_acc_epoch": "last",
-        "val_balanced_acc": "last",
+        "val_macro_recall": "last",
     })
 
     plt.figure(figsize=(12, 5))
@@ -27,8 +26,7 @@ def plot_metrics(log_dir, save_path=None):
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(metrics.index, metrics["train_acc_epoch"], label="train")
-    plt.plot(metrics.index, metrics["val_balanced_acc"], label="val_balanced_acc")
+    plt.plot(metrics.index, metrics["val_macro_recall"], label="val_macro_recall")
     plt.title("Accuracy")
     plt.xlabel("Epoch")
     plt.legend()
