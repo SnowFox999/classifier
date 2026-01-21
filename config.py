@@ -12,7 +12,7 @@ BATCH_SIZE = 32
 EPOCHS = 100
 
 # optimizer
-LR = 3e-5
+LR = 1e-4
 
 WEIGHT_DECAY = 1e-4
 
@@ -24,8 +24,8 @@ NUM_WORKERS = 19
 
 SEED = 42
 
-TEST_SIZE = 0.2
-VAL_SIZE = 0.2
+TEST_SIZE = 0.15
+VAL_SIZE = 0.15
 
 
 

@@ -4,18 +4,21 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
-from torchmetrics.classification import MulticlassRecall
+from sklearn.metrics import balanced_accuracy_score
+
 
 
 class EfficientNetLit(pl.LightningModule):
     def __init__(
         self,
         num_classes: int,
-        lr: float = 3e-4,
-        weight_decay: float = 1e-4,
+        lr: float = 1e-4,
+        weight_decay: float = 1e-5,
     ):
         super().__init__()
         self.save_hyperparameters()
+        self.val_preds = []
+        self.val_targets = []
 
         # --- BACKBONE ---
         self.model = efficientnet_b0(
@@ -27,12 +30,6 @@ class EfficientNetLit(pl.LightningModule):
 
         # --- LOSS ---
         self.criterion = nn.CrossEntropyLoss()
-
-        # --- METRICS ---
-        self.val_macro_recall = MulticlassRecall(
-            num_classes=num_classes,
-            average="macro"
-        )
 
     def forward(self, x):
         return self.model(x)
@@ -63,7 +60,8 @@ class EfficientNetLit(pl.LightningModule):
         loss = self.criterion(logits, y)
 
         preds = torch.argmax(logits, dim=1)
-        self.val_macro_recall.update(preds, y)
+        self.val_preds.append(preds.detach().cpu())
+        self.val_targets.append(y.detach().cpu())
 
         self.log(
             "val_loss",
@@ -74,13 +72,21 @@ class EfficientNetLit(pl.LightningModule):
         )
 
     def on_validation_epoch_end(self):
+        preds = torch.cat(self.val_preds).numpy()
+        targets = torch.cat(self.val_targets).numpy()
+    
+        val_bal_acc = balanced_accuracy_score(targets, preds)
+    
         self.log(
-            "val_macro_recall",
-            self.val_macro_recall.compute(),
+            "val_balanced_acc",
+            val_bal_acc,
             prog_bar=True,
             sync_dist=True,
         )
-        self.val_macro_recall.reset()
+
+        self.val_preds.clear()
+        self.val_targets.clear()
+
 
     # -------------------------
     # OPTIMIZER
