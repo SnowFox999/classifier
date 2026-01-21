@@ -13,7 +13,8 @@ class EfficientNetLit(pl.LightningModule):
         self,
         num_classes: int,
         lr: float = 1e-4,
-        weight_decay: float = 1e-5,
+        weight_decay: float = 1e-3,
+        dropout: float = 0.4,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -21,18 +22,28 @@ class EfficientNetLit(pl.LightningModule):
         self.val_targets = []
 
         # --- BACKBONE ---
-        self.model = efficientnet_b0(
+        self.encoder = efficientnet_b0(
             weights=EfficientNet_B0_Weights.IMAGENET1K_V1
         )
 
-        in_features = self.model.classifier[1].in_features
-        self.model.classifier = nn.Linear(in_features, num_classes)
+        dim = self.encoder.classifier[1].in_features
+        self.encoder.classifier[1] = nn.Identity()
+
+        # -------- CLASSIFIER  --------
+        self.classifier = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(dim, dim // 2),
+            nn.SiLU(),        # Swish
+            nn.Dropout(dropout),
+            nn.Linear(dim // 2, num_classes),
+        )
 
         # --- LOSS ---
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, x):
-        return self.model(x)
+        feat = self.encoder(x)
+        return self.classifier(feat)
 
     # -------------------------
     # TRAIN
@@ -60,8 +71,8 @@ class EfficientNetLit(pl.LightningModule):
         loss = self.criterion(logits, y)
 
         preds = torch.argmax(logits, dim=1)
-        self.val_preds.append(preds.detach().cpu())
-        self.val_targets.append(y.detach().cpu())
+        self.val_preds.append(preds.detach())
+        self.val_targets.append(y.detach())
 
         self.log(
             "val_loss",
@@ -70,10 +81,17 @@ class EfficientNetLit(pl.LightningModule):
             prog_bar=True,
             sync_dist=True,
         )
+       
 
     def on_validation_epoch_end(self):
-        preds = torch.cat(self.val_preds).numpy()
-        targets = torch.cat(self.val_targets).numpy()
+        if len(self.val_preds) == 0:
+            return
+    
+        preds = torch.cat(self.val_preds, dim=0)
+        targets = torch.cat(self.val_targets, dim=0)
+    
+        preds = preds.cpu().numpy()
+        targets = targets.cpu().numpy()
     
         val_bal_acc = balanced_accuracy_score(targets, preds)
     
@@ -81,9 +99,9 @@ class EfficientNetLit(pl.LightningModule):
             "val_balanced_acc",
             val_bal_acc,
             prog_bar=True,
-            sync_dist=True,
+            sync_dist=False,  
         )
-
+    
         self.val_preds.clear()
         self.val_targets.clear()
 
@@ -97,4 +115,7 @@ class EfficientNetLit(pl.LightningModule):
             lr=self.hparams.lr,
             weight_decay=self.hparams.weight_decay,
         )
-        return optimizer
+    
+        return {
+            "optimizer": optimizer,
+        }

@@ -35,7 +35,7 @@ class ImageDataModule(pl.LightningDataModule):
         return DataLoader(
             self.train_ds,
             batch_size=self.batch_size,
-            sampler=self.train_sampler,  # ← ВАЖНО
+            sampler=self.train_sampler,  
             shuffle=False,
             num_workers=self.num_workers,
             persistent_workers=True,
@@ -44,7 +44,7 @@ class ImageDataModule(pl.LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             self.val_ds,
-            batch_size=self.batch_size,
+            batch_size=self.batch_size * 16,
             shuffle=False,
             num_workers=self.num_workers,
             persistent_workers=True,
