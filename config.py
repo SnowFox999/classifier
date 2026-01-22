@@ -11,10 +11,9 @@ IMG_SIZE = 224
 BATCH_SIZE = 32
 EPOCHS = 100
 
-# optimizer
 LR = 1e-4
 
-WEIGHT_DECAY = 1e-4
+WEIGHT_DECAY = 1e-3
 
 # training
 EPOCHS = 100
@@ -24,8 +23,8 @@ NUM_WORKERS = 19
 
 SEED = 42
 
-TEST_SIZE = 0.15
-VAL_SIZE = 0.15
+TEST_SIZE = 0.20
+VAL_SIZE = 0.05
 
 
 

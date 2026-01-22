@@ -12,7 +12,7 @@ class EfficientNetLit(pl.LightningModule):
     def __init__(
         self,
         num_classes: int,
-        lr: float = 1e-4,
+        lr: float = 3e-4,
         weight_decay: float = 1e-3,
         dropout: float = 0.4,
     ):
