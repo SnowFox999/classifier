@@ -20,6 +20,8 @@ class EfficientNetLit(pl.LightningModule):
         self.save_hyperparameters()
         self.val_preds = []
         self.val_targets = []
+        self.test_preds = []
+        self.test_targets = []
 
         # --- BACKBONE ---
         self.encoder = efficientnet_b0(
@@ -98,13 +100,13 @@ class EfficientNetLit(pl.LightningModule):
         self.log(
             "val_balanced_acc",
             val_bal_acc,
+            on_epoch=True,
             prog_bar=True,
-            sync_dist=False,  
+            sync_dist=False,
         )
     
         self.val_preds.clear()
         self.val_targets.clear()
-
 
     # -------------------------
     # OPTIMIZER

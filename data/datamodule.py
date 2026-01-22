@@ -57,4 +57,5 @@ class ImageDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             drop_last=False
         )
-        
+
+    
