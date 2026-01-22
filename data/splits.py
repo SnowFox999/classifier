@@ -14,22 +14,21 @@ def create_splits(
     val_size: float,
     label_col: str = "diagnosis_3",
 ):
-    # 1. читаем metadata
+    #  metadata
     df = pd.read_csv(metadata_csv / "metadata.csv")
 
-    # 2. убираем пустые лейблы
+    # empty labels
     df = df[df[label_col].notna()].copy()
 
-    # 3. путь к изображению
     df["path"] = df["isic_id"].apply(
         lambda x: images_dir / f"{x}.jpg"
     )
 
-    # 4. кодируем классы
+    # classes
     df["label"] = df[label_col].astype("category").cat.codes
     classes = df[label_col].astype("category").cat.categories.tolist()
 
-    # 5. SPLIT ПО LESION_ID (ГЛАВНОЕ!)
+    # 5. SPLIT ПО LESION_ID
     lesion_labels = (
         df.groupby("lesion_id")[label_col]
         .agg(lambda x: x.mode()[0])
@@ -92,7 +91,7 @@ def create_splits_from_file(
         lambda x: images_dir / x
     )
 
-    # 4. классы
+    # classes
     classes = (
         df.sort_values(label_col)[label_col]
         .drop_duplicates()
@@ -104,7 +103,7 @@ def create_splits_from_file(
     val_df   = df[df[split_col].isin(["val", "validation"])].copy()
     test_df  = df[df[split_col] == "test"].copy()
 
-    # 6. sanity-check по lesion_id (КРИТИЧНО)
+    #  sanity-check lesion_id 
     assert set(train_df.lesion_id).isdisjoint(val_df.lesion_id)
     assert set(train_df.lesion_id).isdisjoint(test_df.lesion_id)
     assert set(val_df.lesion_id).isdisjoint(test_df.lesion_id)
