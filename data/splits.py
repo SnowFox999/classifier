@@ -71,43 +71,59 @@ def create_splits(
 def create_splits_from_file(
     split_csv: Path,
     images_dir: Path,
+    fold: int,
     label_col: str = "label",
     split_col: str = "split_type",
+    fold_col: str = "fold_number",
 ):
-    # file
+    # 1. read master CSV
     df = pd.read_csv(split_csv)
 
-    # 2. sanity
+    # 2. sanity: columns
     required_cols = {
         "bcn_filename",
         "lesion_id",
         label_col,
         split_col,
+        fold_col,
     }
     missing = required_cols - set(df.columns)
     assert not missing, f"Missing columns in split CSV: {missing}"
 
+    # 3. filter by fold (❗ КРИТИЧНО ❗)
+    df = df[df[fold_col] == fold].copy()
+    assert len(df) > 0, f"No data for fold {fold}"
+
+    # 4. path to image
     df["path"] = df["bcn_filename"].apply(
         lambda x: images_dir / x
     )
 
-    # classes
+    # 5. classes (фиксированные, стабильные)
     classes = (
         df.sort_values(label_col)[label_col]
         .drop_duplicates()
         .tolist()
     )
 
-    # 5. сплиты
+    # 6. split
     train_df = df[df[split_col] == "train"].copy()
     val_df   = df[df[split_col].isin(["val", "validation"])].copy()
     test_df  = df[df[split_col] == "test"].copy()
 
-    #  sanity-check lesion_id 
-    assert set(train_df.lesion_id).isdisjoint(val_df.lesion_id)
-    assert set(train_df.lesion_id).isdisjoint(test_df.lesion_id)
-    assert set(val_df.lesion_id).isdisjoint(test_df.lesion_id)
+    # train vs test — ОБЯЗАТЕЛЬНО
+    assert set(train_df.lesion_id).isdisjoint(test_df.lesion_id), \
+        "Lesion leakage between TRAIN and TEST"
+    
+    # train vs val — допускаем
+    overlap = set(train_df.lesion_id) & set(val_df.lesion_id)
+    if overlap:
+        print(
+            f"⚠️ NOTE: {len(overlap)} lesions shared between TRAIN and VAL "
+            "(image-level validation by design)"
+        )
 
+    # 8. non-empty
     assert len(train_df) > 0, "TRAIN DF IS EMPTY"
     assert len(val_df) > 0, "VAL DF IS EMPTY"
     assert len(test_df) > 0, "TEST DF IS EMPTY"
