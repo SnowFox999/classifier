@@ -67,3 +67,50 @@ def create_splits(
 
 
     return train_df, val_df, test_df, classes
+
+
+def create_splits_from_file(
+    split_csv: Path,
+    images_dir: Path,
+    label_col: str = "label",
+    split_col: str = "split_type",
+):
+    # file
+    df = pd.read_csv(split_csv)
+
+    # 2. sanity
+    required_cols = {
+        "bcn_filename",
+        "lesion_id",
+        label_col,
+        split_col,
+    }
+    missing = required_cols - set(df.columns)
+    assert not missing, f"Missing columns in split CSV: {missing}"
+
+    df["path"] = df["bcn_filename"].apply(
+        lambda x: images_dir / x
+    )
+
+    # 4. классы
+    classes = (
+        df.sort_values(label_col)[label_col]
+        .drop_duplicates()
+        .tolist()
+    )
+
+    # 5. сплиты
+    train_df = df[df[split_col] == "train"].copy()
+    val_df   = df[df[split_col].isin(["val", "validation"])].copy()
+    test_df  = df[df[split_col] == "test"].copy()
+
+    # 6. sanity-check по lesion_id (КРИТИЧНО)
+    assert set(train_df.lesion_id).isdisjoint(val_df.lesion_id)
+    assert set(train_df.lesion_id).isdisjoint(test_df.lesion_id)
+    assert set(val_df.lesion_id).isdisjoint(test_df.lesion_id)
+
+    assert len(train_df) > 0, "TRAIN DF IS EMPTY"
+    assert len(val_df) > 0, "VAL DF IS EMPTY"
+    assert len(test_df) > 0, "TEST DF IS EMPTY"
+
+    return train_df, val_df, test_df, classes
