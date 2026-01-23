@@ -12,6 +12,7 @@ SPLIT_FILE = PROJECT_ROOT / "experiment/BCN20000/master_split_file_2.csv"
 IMG_SIZE = 224
 BATCH_SIZE = 32
 EPOCHS = 100
+N_FOLDS = 5
 
 LR = 1e-4
 

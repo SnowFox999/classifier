@@ -20,6 +20,9 @@ class EfficientNetLit(pl.LightningModule):
         self.save_hyperparameters()
         self.val_preds = []
         self.val_targets = []
+        self.test_preds = []
+        self.test_targets = []
+
 
         # --- BACKBONE ---
         self.encoder = efficientnet_b0(
@@ -104,6 +107,34 @@ class EfficientNetLit(pl.LightningModule):
     
         self.val_preds.clear()
         self.val_targets.clear()
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        logits = self(x)
+        loss = self.criterion(logits, y)
+    
+        preds = torch.argmax(logits, dim=1)
+        self.test_preds.append(preds.detach())
+        self.test_targets.append(y.detach())
+    
+        self.log("test_loss", loss, on_epoch=True)
+
+    def on_test_epoch_end(self):
+        preds = torch.cat(self.test_preds).cpu().numpy()
+        targets = torch.cat(self.test_targets).cpu().numpy()
+    
+        bal_acc = balanced_accuracy_score(targets, preds)
+    
+        self.log(
+            "test_balanced_acc",
+            bal_acc,
+            prog_bar=True,
+        )
+    
+        self.test_preds.clear()
+        self.test_targets.clear()
+
+
 
     # -------------------------
     # OPTIMIZER

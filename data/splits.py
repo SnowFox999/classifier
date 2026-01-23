@@ -90,7 +90,7 @@ def create_splits_from_file(
     missing = required_cols - set(df.columns)
     assert not missing, f"Missing columns in split CSV: {missing}"
 
-    # 3. filter by fold (❗ КРИТИЧНО ❗)
+    # 3. filter by fold
     df = df[df[fold_col] == fold].copy()
     assert len(df) > 0, f"No data for fold {fold}"
 
@@ -111,7 +111,7 @@ def create_splits_from_file(
     val_df   = df[df[split_col].isin(["val", "validation"])].copy()
     test_df  = df[df[split_col] == "test"].copy()
 
-    # train vs test — ОБЯЗАТЕЛЬНО
+    # train vs test
     assert set(train_df.lesion_id).isdisjoint(test_df.lesion_id), \
         "Lesion leakage between TRAIN and TEST"
     
@@ -119,8 +119,8 @@ def create_splits_from_file(
     overlap = set(train_df.lesion_id) & set(val_df.lesion_id)
     if overlap:
         print(
-            f"⚠️ NOTE: {len(overlap)} lesions shared between TRAIN and VAL "
-            "(image-level validation by design)"
+            f" NOTE: {len(overlap)} lesions shared between TRAIN and VAL "
+            "(image-level validation)"
         )
 
     # 8. non-empty
