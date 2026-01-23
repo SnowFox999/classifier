@@ -65,12 +65,6 @@ def main():
         train_sampler=train_sampler,
      )
 
-    datamodule.setup()
-
-    print("Using data:")
-    print(f"  train: {len(datamodule.train_ds)}")
-    print(f"  val:   {len(datamodule.val_ds)}")
-    print(f"  test:  {len(datamodule.test_ds)}")
     
     model = EfficientNetLit(
         num_classes=len(classes),
@@ -81,11 +75,6 @@ def main():
 
     logger = CSVLogger("logs", name="efficientnet")
 
-    checkpoint_cb = ModelCheckpoint(
-        monitor="val_balanced_acc",
-        mode="max",
-        save_top_k=1,
-    )
 
     early_stop = pl.callbacks.EarlyStopping(
         monitor="val_loss",
@@ -101,7 +90,10 @@ def main():
         devices=1,
         logger=logger,
         callbacks=[
-            checkpoint_cb,
+            ModelCheckpoint(
+                    monitor="val_loss",
+                    mode="min",
+                ),
             early_stop,
         ],
     )
