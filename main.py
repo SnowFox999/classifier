@@ -79,6 +79,13 @@ def main():
             mode="min",
             verbose=True,
         )
+
+        ckpt_callback = ModelCheckpoint(
+            monitor="val_loss",
+            mode="min",
+            dirpath=f"logs/efficientnet/fold_{fold}/checkpoints",
+            filename="best",
+        )
     
     
         trainer = pl.Trainer(
@@ -87,11 +94,7 @@ def main():
             devices=1,
             logger=logger,
             callbacks=[
-                ModelCheckpoint(
-                        monitor="val_loss",
-                        mode="min",
-                        filename=f"fold{fold}" + "-{epoch}-{val_loss:.4f}",
-                    ),
+                ckpt_callback,
                 early_stop,
             ],
         )
@@ -101,7 +104,7 @@ def main():
         test_metrics = trainer.test(
             model,
             datamodule=datamodule,
-            ckpt_path="best",
+            ckpt_path=ckpt_callback.best_model_path,
         )
         
         all_fold_metrics.append(test_metrics[0])
