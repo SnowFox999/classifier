@@ -2,7 +2,7 @@
 
 from config import *
 from utils.seed import set_seed
-from data.splits import create_splits, create_splits_from_file
+from data.splits import create_splits, create_splits_from_file, create_lesion_kfold_splits
 from data.transforms import get_transforms
 from data.datamodule import ImageDataModule
 from models.efficientnet import EfficientNetLit
@@ -24,16 +24,28 @@ def main():
 
     all_fold_metrics = []
 
-    for fold in range(1, N_FOLDS + 1):
-        print(f"\n{'='*60}")
-        print(f" START FOLD {fold}/{N_FOLDS}")
-        print(f"{'='*60}\n")
+    #for fold in range(1, N_FOLDS + 1):
+    #    print(f"\n{'='*60}")
+    #    print(f" START FOLD {fold}/{N_FOLDS}")
+    #    print(f"{'='*60}\n")
+    #
+    #    train_df, val_df, test_df, classes = create_splits_from_file(
+    #        split_csv=SPLIT_FILE,
+    #        images_dir=METADATA_DIR,
+    #        fold=fold,
+    #    )
 
-        train_df, val_df, test_df, classes = create_splits_from_file(
-            split_csv=SPLIT_FILE,
+    for fold in range(1, N_FOLDS + 1):
+        train_df, val_df, test_df, classes = create_lesion_kfold_splits(
+            metadata_csv=METADATA_DIR,
             images_dir=METADATA_DIR,
+            seed=SEED,
+            n_folds=5,
             fold=fold,
+            test_size=TEST_SIZE,
+            val_size=VAL_SIZE,
         )
+
 
         print(
             len(train_df),
@@ -70,7 +82,7 @@ def main():
         )
     
     
-        logger = CSVLogger("logs", name="efficientnet", version=f"fold_{fold}",)
+        logger = CSVLogger("logs", name="efficientnet", version=f"split_{fold}",)
     
     
         early_stop = pl.callbacks.EarlyStopping(
@@ -83,7 +95,7 @@ def main():
         ckpt_callback = ModelCheckpoint(
             monitor="val_loss",
             mode="min",
-            dirpath=f"logs/efficientnet/fold_{fold}/checkpoints",
+            dirpath=f"logs/efficientnet/split_{fold}/checkpoints",
             filename="best",
         )
     
