@@ -26,7 +26,8 @@ def plot_metrics(log_dir, save_path=None):
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(metrics.index, metrics["val_balanced_acc"], label="val_balanced_acc")
+    plt.plot(metrics.index, metrics["val_balanced_acc"], label="val_balanced")
+    plt.plot(metrics.index, metrics["train_acc"], label="train")
     plt.title("Accuracy")
     plt.xlabel("Epoch")
     plt.legend()

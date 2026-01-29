@@ -84,6 +84,7 @@ def main():
             num_classes=len(classes),
             lr=LR,
             weight_decay=WEIGHT_DECAY,
+            dropout=DROPOUT,
         )
     
     
@@ -105,7 +106,7 @@ def main():
         )
 
         backbone_finetuning = BackboneFinetuning(
-            unfreeze_backbone_at_epoch=5,   # после 5 эпох разморозить encoder
+            unfreeze_backbone_at_epoch=UNFREEZE,   # после 5 эпох разморозить encoder
             lambda_func=lr_lambda,
             backbone_initial_ratio_lr=10,   # LR backbone = LR_head / 10
             should_align=True,

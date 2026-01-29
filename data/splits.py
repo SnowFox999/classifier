@@ -192,7 +192,7 @@ def create_lesion_kfold_splits(
         skf.split(lesion_df["lesion_id"], lesion_df["label"])
     )
 
-    test_idx, trainval_idx = folds[fold - 1]
+    trainval_idx, test_idx = folds[fold - 1]
 
     test_lesions = lesion_df.iloc[test_idx]
     trainval_lesions = lesion_df.iloc[trainval_idx]
@@ -284,7 +284,7 @@ def create_lesion_1_img(
         skf.split(lesion_df["lesion_id"], lesion_df["label"])
     )
 
-    test_idx, trainval_idx = folds[fold - 1]
+    trainval_idx, test_idx = folds[fold - 1]
 
     test_lesions = lesion_df.iloc[test_idx]
     trainval_lesions = lesion_df.iloc[trainval_idx]
