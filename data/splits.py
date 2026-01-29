@@ -224,3 +224,98 @@ def create_lesion_kfold_splits(
     assert set(val_df.lesion_id).isdisjoint(test_df.lesion_id)
 
     return train_df, val_df, test_df, classes
+
+
+
+
+def create_lesion_1_img(
+    metadata_csv,
+    images_dir,
+    seed,
+    test_size,   
+    val_size,   
+    n_folds,
+    fold,
+):
+    assert 1 <= fold <= n_folds
+
+    # -------------------------
+    # Load metadata
+    # -------------------------
+    df = pd.read_csv(metadata_csv / "metadata.csv")
+
+    # drop unwanted classes (e.g. Scar)
+    df = df[df["diagnosis_3"].isin(DIAGNOSIS_MAP)].copy()
+    df["diagnosis"] = df["diagnosis_3"].map(DIAGNOSIS_MAP)
+
+    df["path"] = df["isic_id"].apply(lambda x: images_dir / f"{x}.jpg")
+
+    df["label"] = df["diagnosis"].astype("category").cat.codes
+
+    df = (
+        df
+        .groupby("lesion_id", group_keys=False)
+        .apply(lambda x: x.sample(n=1, random_state=seed))
+        .reset_index(drop=True)
+    )
+
+
+    classes = df["diagnosis"].astype("category").cat.categories.tolist()
+
+    # -------------------------
+    # Lesion-level table
+    # -------------------------
+    lesion_df = (
+        df.groupby("lesion_id")
+        .agg(label=("label", lambda x: x.mode()[0]))
+        .reset_index()
+    )
+
+    # -------------------------
+    # K-FOLD over LESIONS
+    # -------------------------
+    skf = StratifiedKFold(
+        n_splits=n_folds,
+        shuffle=True,
+        random_state=seed,
+    )
+
+    folds = list(
+        skf.split(lesion_df["lesion_id"], lesion_df["label"])
+    )
+
+    test_idx, trainval_idx = folds[fold - 1]
+
+    test_lesions = lesion_df.iloc[test_idx]
+    trainval_lesions = lesion_df.iloc[trainval_idx]
+
+    # -------------------------
+    # VAL split 
+    # -------------------------
+    val_fraction = val_size / (1.0 - test_size)  # 0.05 / 0.8
+
+    train_lesions, val_lesions = train_test_split(
+        trainval_lesions,
+        test_size=val_fraction,
+        random_state=seed,
+        stratify=trainval_lesions["label"],
+    )
+
+    # -------------------------
+    # Expand to images
+    # -------------------------
+    train_df = df[df.lesion_id.isin(train_lesions["lesion_id"])]
+    val_df   = df[df.lesion_id.isin(val_lesions["lesion_id"])]
+    test_df  = df[df.lesion_id.isin(test_lesions["lesion_id"])]
+
+    # -------------------------
+    # Sanity checks
+    # -------------------------
+    assert set(train_df.lesion_id).isdisjoint(val_df.lesion_id)
+    assert set(train_df.lesion_id).isdisjoint(test_df.lesion_id)
+    assert set(val_df.lesion_id).isdisjoint(test_df.lesion_id)
+
+    assert df.lesion_id.value_counts().max() == 1
+
+
+    return train_df, val_df, test_df, classes

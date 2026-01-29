@@ -2,7 +2,7 @@
 
 from config import *
 from utils.seed import set_seed
-from data.splits import create_splits, create_splits_from_file, create_lesion_kfold_splits
+from data.splits import create_splits, create_splits_from_file, create_lesion_kfold_splits, create_lesion_1_img
 from data.transforms import get_transforms
 from data.datamodule import ImageDataModule
 from models.efficientnet import EfficientNetLit
@@ -17,6 +17,11 @@ from sklearn.utils.class_weight import compute_class_weight
 import numpy as np
 
 from utils.make_sampler import make_sampler
+from pytorch_lightning.callbacks import BackboneFinetuning
+
+
+def lr_lambda(epoch):
+    return 1.5
 
 
 def main():
@@ -98,6 +103,15 @@ def main():
             dirpath=f"logs/efficientnet/split_{fold}/checkpoints",
             filename="best",
         )
+
+        backbone_finetuning = BackboneFinetuning(
+            unfreeze_backbone_at_epoch=5,   # после 5 эпох разморозить encoder
+            lambda_func=lr_lambda,
+            backbone_initial_ratio_lr=10,   # LR backbone = LR_head / 10
+            should_align=True,
+            train_bn=True,
+            verbose=True,
+        )
     
     
         trainer = pl.Trainer(
@@ -108,6 +122,7 @@ def main():
             callbacks=[
                 ckpt_callback,
                 early_stop,
+                backbone_finetuning,
             ],
         )
     

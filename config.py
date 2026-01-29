@@ -18,9 +18,6 @@ LR = 1e-4
 
 WEIGHT_DECAY = 1e-3
 
-# training
-EPOCHS = 100
-
 PATIENCE = 20
 NUM_WORKERS = 19
 

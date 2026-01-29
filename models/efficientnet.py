@@ -4,8 +4,7 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
-from sklearn.metrics import balanced_accuracy_score
-
+from sklearn.metrics import balanced_accuracy_score, accuracy_score
 
 
 class EfficientNetLit(pl.LightningModule):
@@ -22,15 +21,18 @@ class EfficientNetLit(pl.LightningModule):
         self.val_targets = []
         self.test_preds = []
         self.test_targets = []
+        self.train_preds = []
+        self.train_targets = []
+
 
 
         # --- BACKBONE ---
-        self.encoder = efficientnet_b0(
+        self.backbone = efficientnet_b0(
             weights=EfficientNet_B0_Weights.IMAGENET1K_V1
         )
 
-        dim = self.encoder.classifier[1].in_features
-        self.encoder.classifier[1] = nn.Identity()
+        dim = self.backbone.classifier[1].in_features
+        self.backbone.classifier[1] = nn.Identity()
 
         # -------- CLASSIFIER  --------
         self.classifier = nn.Sequential(
@@ -45,7 +47,7 @@ class EfficientNetLit(pl.LightningModule):
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, x):
-        feat = self.encoder(x)
+        feat = self.backbone(x)
         return self.classifier(feat)
 
     # -------------------------
@@ -56,6 +58,11 @@ class EfficientNetLit(pl.LightningModule):
         logits = self(x)
         loss = self.criterion(logits, y)
 
+        preds = torch.argmax(logits, dim=1)
+
+        self.train_preds.append(preds.detach())
+        self.train_targets.append(y.detach())
+
         self.log(
             "train_loss",
             loss,
@@ -64,6 +71,26 @@ class EfficientNetLit(pl.LightningModule):
             sync_dist=True,
         )
         return loss
+
+    def on_train_epoch_end(self):
+        if len(self.train_preds) == 0:
+            return
+    
+        preds = torch.cat(self.train_preds).cpu().numpy()
+        targets = torch.cat(self.train_targets).cpu().numpy()
+    
+        train_acc = accuracy_score(targets, preds)
+    
+        self.log(
+            "train_acc",
+            train_acc,
+            prog_bar=True,
+            sync_dist=False,
+        )
+    
+        self.train_preds.clear()
+        self.train_targets.clear()
+
 
     # -------------------------
     # VALIDATION
@@ -141,11 +168,8 @@ class EfficientNetLit(pl.LightningModule):
     # -------------------------
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
-            self.parameters(),
+            self.classifier.parameters(),  
             lr=self.hparams.lr,
             weight_decay=self.hparams.weight_decay,
         )
-    
-        return {
-            "optimizer": optimizer,
-        }
+        return optimizer
