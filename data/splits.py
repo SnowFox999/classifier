@@ -149,8 +149,8 @@ def create_lesion_kfold_splits(
     metadata_csv,
     images_dir,
     seed,
-    test_size,   # = 0.20
-    val_size,    # = 0.05
+    test_size,   
+    val_size,   
     n_folds,
     fold,
 ):

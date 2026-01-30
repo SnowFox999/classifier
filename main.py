@@ -41,7 +41,7 @@ def main():
     #    )
 
     for fold in range(1, N_FOLDS + 1):
-        train_df, val_df, test_df, classes = create_lesion_kfold_splits(
+        train_df, val_df, test_df, classes = create_splits_from_file(
             metadata_csv=METADATA_DIR,
             images_dir=METADATA_DIR,
             seed=SEED,
@@ -88,25 +88,25 @@ def main():
         )
     
     
-        logger = CSVLogger("logs", name="efficientnet", version=f"split_{fold}",)
+        logger = CSVLogger("logs", name="efficientnet", version=f"split_base_{fold}",)
     
     
         early_stop = pl.callbacks.EarlyStopping(
-            monitor="val_loss",
+            monitor="val_balanced_acc",
             patience=20,
-            mode="min",
+            mode="max",
             verbose=True,
         )
 
         ckpt_callback = ModelCheckpoint(
-            monitor="val_loss",
-            mode="min",
-            dirpath=f"logs/efficientnet/split_{fold}/checkpoints",
+            monitor="val_balanced_acc",
+            mode="max",
+            dirpath=f"logs/efficientnet/split_base_{fold}/checkpoints",
             filename="best",
         )
 
         backbone_finetuning = BackboneFinetuning(
-            unfreeze_backbone_at_epoch=UNFREEZE,   # после 5 эпох разморозить encoder
+            unfreeze_backbone_at_epoch=UNFREEZE,  
             lambda_func=lr_lambda,
             backbone_initial_ratio_lr=10,   # LR backbone = LR_head / 10
             should_align=True,
