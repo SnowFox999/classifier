@@ -29,19 +29,19 @@ def main():
 
     all_fold_metrics = []
 
-    #for fold in range(1, N_FOLDS + 1):
-    #    print(f"\n{'='*60}")
-    #    print(f" START FOLD {fold}/{N_FOLDS}")
-    #    print(f"{'='*60}\n")
-    #
-    #    train_df, val_df, test_df, classes = create_splits_from_file(
-    #        split_csv=SPLIT_FILE,
-    #        images_dir=METADATA_DIR,
-    #        fold=fold,
-    #    )
+    for fold in range(1, N_FOLDS + 1):
+        print(f"\n{'='*60}")
+        print(f" START FOLD {fold}/{N_FOLDS}")
+        print(f"{'='*60}\n")
+    
+     #   train_df, val_df, test_df, classes = create_splits_from_file(
+     #       split_csv=SPLIT_FILE,
+     #       images_dir=METADATA_DIR,
+     #       fold=fold,
+     #   )
 
     for fold in range(1, N_FOLDS + 1):
-        train_df, val_df, test_df, classes = create_splits_from_file(
+        train_df, val_df, test_df, classes = create_lesion_kfold_splits(
             metadata_csv=METADATA_DIR,
             images_dir=METADATA_DIR,
             seed=SEED,
