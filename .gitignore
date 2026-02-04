@@ -36,6 +36,19 @@ tmp/
 lightning_logs/
 *.yaml
 
+work_dir/
+fastdup_output/
+*.pkl.gz
+*.index
+*.csv
+*.duckdb
+*.json
+*.dat.csv
+*.dat
+*.jpg
+*.jpeg
+*.png
+
 # ===== OS / IDE =====
 .DS_Store
 .idea/

@@ -28,7 +28,7 @@ class EfficientNetLit(pl.LightningModule):
 
         # --- BACKBONE ---
         self.backbone = efficientnet_b0(
-            weights=EfficientNet_B0_Weights.IMAGENET1K_V1
+            weights=None
         )
 
         dim = self.backbone.classifier[1].in_features
