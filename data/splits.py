@@ -16,7 +16,7 @@ def create_splits(
 ):
     
     #  metadata
-    df = pd.read_csv(metadata_csv / "metadata.csv")
+    df = pd.read_csv(metadata_csv / "metadata_.csv")
 
     # empty labels
     df = df[df[label_col].notna()].copy()
@@ -159,7 +159,7 @@ def create_lesion_kfold_splits(
     # -------------------------
     # Load metadata
     # -------------------------
-    df = pd.read_csv(metadata_csv / "metadata.csv")
+    df = pd.read_csv(metadata_csv / "metadata_clean.csv")
 
     # drop unwanted classes (e.g. Scar)
     df = df[df["diagnosis_3"].isin(DIAGNOSIS_MAP)].copy()

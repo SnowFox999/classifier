@@ -43,7 +43,7 @@ def main():
     for fold in range(1, N_FOLDS + 1):
         train_df, val_df, test_df, classes = create_lesion_kfold_splits(
             metadata_csv=METADATA_DIR,
-            images_dir=METADATA_DIR,
+            images_dir=DATA_DIR,
             seed=SEED,
             n_folds=5,
             fold=fold,
@@ -88,7 +88,7 @@ def main():
         )
     
     
-        logger = CSVLogger("logs", name="efficientnet", version=f"split_no_weight_{fold}",)
+        logger = CSVLogger("logs", name="efficientnet", version=f"split_new_data_{fold}",)
     
     
         early_stop = pl.callbacks.EarlyStopping(
@@ -101,7 +101,7 @@ def main():
         ckpt_callback = ModelCheckpoint(
             monitor="val_balanced_acc",
             mode="max",
-            dirpath=f"logs/efficientnet/split_no_weight_{fold}/checkpoints",
+            dirpath=f"logs/efficientnet/split_new_data_{fold}/checkpoints",
             filename="best",
         )
 
