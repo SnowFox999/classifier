@@ -3,7 +3,7 @@
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "BCN20000" 
+DATA_DIR = PROJECT_ROOT / "datasets/BCN_no_duplicats/" 
 
 METADATA_DIR = PROJECT_ROOT
 
