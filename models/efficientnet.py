@@ -43,7 +43,7 @@ class EfficientNetLit(pl.LightningModule):
 
         # --- LOSS ---
         self.criterion = nn.CrossEntropyLoss(
-            label_smoothing=0.1
+           # label_smoothing=0.1
         )
 
     def forward(self, x):
