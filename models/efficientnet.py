@@ -26,7 +26,8 @@ class EfficientNetLit(pl.LightningModule):
 
         # --- BACKBONE ---
         self.backbone = efficientnet_b0(
-            weights=EfficientNet_B0_Weights.IMAGENET1K_V1
+            weights=None
+            #weights=EfficientNet_B0_Weights.IMAGENET1K_V1
         )
 
         dim = self.backbone.classifier[1].in_features
@@ -43,7 +44,7 @@ class EfficientNetLit(pl.LightningModule):
 
         # --- LOSS ---
         self.criterion = nn.CrossEntropyLoss(
-           # label_smoothing=0.1
+           label_smoothing=0.1
         )
 
     def forward(self, x):

@@ -88,7 +88,7 @@ def main():
         )
     
     
-        logger = CSVLogger("logs", name="efficientnet", version=f"split_out_sm0_{fold}",)
+        logger = CSVLogger("logs", name="efficientnet", version=f"split_out_no_weight_{fold}",)
     
     
         early_stop = pl.callbacks.EarlyStopping(
@@ -101,7 +101,7 @@ def main():
         ckpt_callback = ModelCheckpoint(
             monitor="val_balanced_acc",
             mode="max",
-            dirpath=f"logs/efficientnet/split_out_sm0_{fold}/checkpoints",
+            dirpath=f"logs/efficientnet/split_out_no_weight_{fold}/checkpoints",
             filename="best",
         )
 
