@@ -7,7 +7,7 @@ DATA_DIR = PROJECT_ROOT / "BCN20000/"
 
 METADATA_DIR = PROJECT_ROOT
 
-SPLIT_FILE = PROJECT_ROOT / "experiment/BCN20000/master_split_file_2.csv"
+SPLIT_FILE = PROJECT_ROOT / "experiment/BCN20000/master_split_file_new_data.csv"
 
 IMG_SIZE = 224
 BATCH_SIZE = 32
