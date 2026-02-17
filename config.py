@@ -5,9 +5,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "BCN20000/" 
 
-METADATA_DIR = PROJECT_ROOT
+METADATA_DIR = PROJECT_ROOT 
 
-SPLIT_FILE = PROJECT_ROOT / "experiment/BCN20000/master_split_file_new_data.csv"
+SPLIT_FILE = PROJECT_ROOT / "experiment/BCN20000/master_split_file_new_data_5_val.csv"
 #20 val, 60 train, => 20 test
 #master_split_file_new_data_5_val.csv
 
