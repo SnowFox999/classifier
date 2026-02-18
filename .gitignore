@@ -36,6 +36,12 @@ tmp/
 lightning_logs/
 *.yaml
 
+wandb/
+*.log
+*.wandb
+*.yaml
+*.json
+
 work_dir/
 fastdup_output/
 *.pkl.gz

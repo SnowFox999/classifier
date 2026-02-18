@@ -81,6 +81,18 @@ DIAGNOSIS_MAP = {
     "Squamous cell carcinoma, NOS": "SCC",
 }
 
+DIAGNOSIS_MAP_4 = {
+    "Solar or actinic keratosis": "KE",
+    "Basal cell carcinoma": "CC",
+    "Seborrheic keratosis": "KE",
+    "Solar lentigo": "KE",
+    "Dermatofibroma": "KE",
+    "Melanoma metastasis": "MEL",
+    "Melanoma, NOS": "MEL",
+    "Nevus": "NV",
+    "Squamous cell carcinoma, NOS": "CC",
+}
+
 
 def create_lesion_kfold_splits(
     metadata_csv,
@@ -101,7 +113,7 @@ def create_lesion_kfold_splits(
 
     # drop unwanted classes (e.g. Scar)
     df = df[df["diagnosis_3"].isin(DIAGNOSIS_MAP)].copy()
-    df["diagnosis"] = df["diagnosis_3"].map(DIAGNOSIS_MAP)
+    df["diagnosis"] = df["diagnosis_3"].map(DIAGNOSIS_MAP_4)
 
     df["path"] = df["isic_id"].apply(lambda x: images_dir / f"{x}.jpg")
 

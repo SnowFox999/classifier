@@ -91,8 +91,8 @@ def main():
     
         wandb_logger = WandbLogger(
             project="skin-lesion-classification",   # название проекта в wandb
-            name=f"clean_data_{fold}",        # имя запуска
-            group="clean_5data",              # группировка фолдов
+            name=f"efficient_b1_{fold}",        # имя запуска
+            group="4_5class",              # группировка фолдов
             config={
                 "lr": LR,
                 "weight_decay": WEIGHT_DECAY,
@@ -116,7 +116,7 @@ def main():
         ckpt_callback = ModelCheckpoint(
             monitor="val_balanced_acc",
             mode="max",
-            dirpath=f"logs/efficientnet/clean_data_{fold}/checkpoints",
+            dirpath=f"logs/efficientnet/efficient_b1_{fold}/checkpoints",
             filename="best",
         )
 

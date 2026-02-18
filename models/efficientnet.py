@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 import pytorch_lightning as pl
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights, efficientnet_b1, EfficientNet_B1_Weights
 from sklearn.metrics import balanced_accuracy_score, accuracy_score
 
 
@@ -25,9 +25,10 @@ class EfficientNetLit(pl.LightningModule):
         self.train_targets = []
 
         # --- BACKBONE ---
-        self.backbone = efficientnet_b0(
+        self.backbone = efficientnet_b1(
             #weights=None
-            weights=EfficientNet_B0_Weights.IMAGENET1K_V1
+            #weights=EfficientNet_B0_Weights.IMAGENET1K_V1
+            weights=EfficientNet_B1_Weights.IMAGENET1K_V1
         )
 
         dim = self.backbone.classifier[1].in_features
